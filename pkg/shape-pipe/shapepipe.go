@@ -8,6 +8,7 @@ type Shape []byte
 
 const emptyByte = byte(' ')
 const newlineByte = byte('\n')
+const tabByte = byte('	')
 
 type ShapeReader struct {
 	Shape           Shape
@@ -24,6 +25,8 @@ func (sw *ShapeReader) Read(p []byte) (int, error) {
 			p[i] = emptyByte
 		case newlineByte:
 			p[i] = newlineByte
+		case tabByte:
+			p[i] = emptyByte
 		default:
 			for {
 				n, err := sw.Reader.Read(read)
