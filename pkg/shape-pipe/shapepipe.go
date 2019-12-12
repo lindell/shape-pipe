@@ -8,12 +8,13 @@ type Shape []byte
 
 const emptyByte = byte(' ')
 const newlineByte = byte('\n')
-const tabByte = byte('	')
+const tabByte = byte('\t')
 
 type ShapeReader struct {
 	Shape           Shape
 	Reader          io.Reader
 	currentPosition int
+	lastByte        byte
 }
 
 func (sw *ShapeReader) Read(p []byte) (int, error) {
@@ -25,8 +26,6 @@ func (sw *ShapeReader) Read(p []byte) (int, error) {
 			p[i] = emptyByte
 		case newlineByte:
 			p[i] = newlineByte
-		case tabByte:
-			p[i] = emptyByte
 		default:
 			for {
 				n, err := sw.Reader.Read(read)
@@ -40,7 +39,18 @@ func (sw *ShapeReader) Read(p []byte) (int, error) {
 				if read[0] == newlineByte {
 					continue
 				}
+				// Tabs will mess with the printing, replace it with a space
+				if read[0] == tabByte {
+					sw.lastByte = emptyByte
+					p[i] = emptyByte
+					break
+				}
+				// Don't print multiple spaces right after another
+				if sw.lastByte == emptyByte && read[0] == emptyByte {
+					continue
+				}
 
+				sw.lastByte = read[0]
 				p[i] = read[0]
 				break
 			}

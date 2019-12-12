@@ -28,7 +28,8 @@ func main() {
 		Reader: os.Stdin,
 	}
 
-	_, err := io.Copy(os.Stdout, reader)
+	buf := make([]byte, 1)
+	_, err := io.CopyBuffer(os.Stdout, reader, buf)
 	if err != nil {
 		log.Fatal(err)
 	}
